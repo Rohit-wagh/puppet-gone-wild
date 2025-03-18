@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  puppetserver:
+    image: puppet/puppetserver:latest
+    container_name: puppetserver
+    hostname: puppet
+    ports:
+      - "8140:8140"
+    volumes:
+      - ./puppet/code:/etc/puppetlabs/code
+      - ./scripts:/scripts
+    environment:
+      - PUPPETSERVER_HOSTNAME=puppet
+      - PUPPETSERVER_CERTNAME=puppet
+    entrypoint: ["/scripts/start-puppetserver.sh"]
+
+  puppetagent:
+    image: puppet/puppet-agent:latest
+    container_name: puppetagent
+    hostname: agent
+    depends_on:
+      - puppetserver
+    environment:
+      - PUPPETSERVER_HOSTNAME=puppet
+    entrypoint: ["/scripts/start-puppetagent.sh"]
+    volumes:
+      - ./scripts:/scripts
